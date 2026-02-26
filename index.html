@@ -1317,72 +1317,219 @@ function prevFlashcard() {
 }
 
 // ----- QUIZ MODE -----
-function buildQuiz() {
-  quizQuestions = [];
-  const allItems = [];
-  topics.forEach(t => {
-    t.branches.forEach(b => {
-      b.items.forEach(item => {
-        if (item.subs && item.subs.length) {
-          allItems.push({ topic: t.name, branch: b.label, text: item.text, subs: item.subs });
-        }
-      });
-    });
-  });
+// ===== 100 QUIZ QUESTIONS BANK =====
+const quizBank = [
+  // TRANSPORT (1-8)
+  {topic:"Transport",q:"Một ưu điểm của phương tiện cá nhân là gì?",opts:["Be safer – have fewer accidents","Be pretty crowded at rush hours","Public transport systems are quite bad","Have a higher chance of getting diseases"],ans:0},
+  {topic:"Transport",q:"'Never think about the weather' là ưu điểm hay nhược điểm của phương tiện cá nhân?",opts:["Ưu điểm (Advantage)","Nhược điểm (Disadvantage)","Giải pháp (Solution)","Không liên quan"],ans:0},
+  {topic:"Transport",q:"Khi đi phương tiện cá nhân, bạn có thể làm gì để cảm thấy thoải mái?",opts:["Listen to music, read books, take a nap","Wait a long time for the bus","Get crowded at rush hours","Run slowly on bad roads"],ans:0},
+  {topic:"Transport",q:"'Transport infrastructure is in bad conditions' dẫn đến hậu quả gì?",opts:["Phương tiện chạy chậm (run slowly)","Có ít tai nạn hơn","Tiết kiệm thời gian","Thoải mái hơn"],ans:0},
+  {topic:"Transport",q:"Nhược điểm nào KHÔNG được nhắc đến về giao thông công cộng?",opts:["Giá vé quá đắt","Đông đúc vào giờ cao điểm","Phải chờ xe buýt lâu","Hệ thống giao thông công cộng khá tệ"],ans:0},
+  {topic:"Transport",q:"'Be convenient and fast' có nghĩa là gì?",opts:["Thuận tiện và nhanh chóng","Thoải mái và thư giãn","An toàn và ổn định","Rẻ và tiết kiệm"],ans:0},
+  {topic:"Transport",q:"Điền vào chỗ trống: Travel ______ I want and ______ I want.",opts:["wherever / whenever","however / whatever","whoever / whichever","whichever / however"],ans:0},
+  {topic:"Transport",q:"Đi phương tiện công cộng có thể dẫn đến nguy cơ gì về sức khỏe?",opts:["Have a higher chance of getting diseases","Have fewer accidents","Feel comfortable and relaxed","Be convenient and fast"],ans:0},
+  // CITY (9-16)
+  {topic:"City",q:"Những địa điểm nào thường có ở thành phố?",opts:["Restaurants, cinemas, shopping malls, skyscrapers","Rice fields, rivers, mountains","Forests, lakes, farms","Villages, temples, pagodas"],ans:0},
+  {topic:"City",q:"'The city environment is heavily polluted' – hậu quả nào đúng?",opts:["Have polluted air, heavy traffic, bad roads","Save more money","Have more career opportunities","People are friendly"],ans:0},
+  {topic:"City",q:"Từ 'skyscrapers' trong tiếng Việt nghĩa là gì?",opts:["Tòa nhà chọc trời","Trung tâm thương mại","Rạp chiếu phim","Nhà hàng"],ans:0},
+  {topic:"City",q:"Chi phí sống ở thành phố như thế nào?",opts:["Expensive – spend more money","Cheap – save a lot of money","Free – no cost at all","Moderate – just enough"],ans:0},
+  {topic:"City",q:"'Social evils' (tệ nạn xã hội) bao gồm những gì?",opts:["Drinking, drug, gambling","Swimming, jogging, reading","Cooking, cleaning, shopping","Studying, working, volunteering"],ans:0},
+  {topic:"City",q:"Ưu điểm nào của thành phố liên quan đến giải trí?",opts:["Have many entertainments – restaurants, parks, cinemas","Have fresher air","People are more friendly","The cost of living is cheap"],ans:0},
+  {topic:"City",q:"Sống ở thành phố có thu nhập như thế nào?",opts:["Have higher incomes – save more money, buy what I like","Have lower incomes","Have no income","Have unstable incomes"],ans:0},
+  {topic:"City",q:"'Have more career opportunities' nghĩa là gì?",opts:["Có nhiều cơ hội nghề nghiệp","Có nhiều bạn bè","Có nhiều giải trí","Có nhiều ô nhiễm"],ans:0},
+  // COUNTRYSIDE (17-23)
+  {topic:"Countryside",q:"Những địa điểm đặc trưng của nông thôn là gì?",opts:["Rice fields, rivers, mountains","Shopping malls, cinemas, skyscrapers","Airports, train stations, highways","Factories, offices, banks"],ans:0},
+  {topic:"Countryside",q:"Không khí ở nông thôn như thế nào?",opts:["Have fresher air – enjoy the clean and fresh air","Have polluted air","The air is heavily polluted","There is too much dust"],ans:0},
+  {topic:"Countryside",q:"Chi phí sống ở nông thôn ra sao?",opts:["The cost of living is cheap – save a lot of money","The cost of living is expensive","Very costly","Unaffordable"],ans:0},
+  {topic:"Countryside",q:"Con người ở nông thôn có đặc điểm gì?",opts:["More friendly, opener – live near each other","Cold and distant","Very competitive","Unfriendly and selfish"],ans:0},
+  {topic:"Countryside",q:"Nhược điểm của nông thôn là gì?",opts:["Have lower incomes, life is boring","Have higher incomes","Too many entertainment places","Traffic is always heavy"],ans:0},
+  {topic:"Countryside",q:"Nông thôn thiếu những gì?",opts:["Restaurants, public parks, cinemas, downtown boutiques","Rice fields and rivers","Fresh air and trees","Friendly neighbors"],ans:0},
+  {topic:"Countryside",q:"Từ 'opener' trong ngữ cảnh mô tả con người nông thôn có nghĩa gần với?",opts:["Cởi mở","Mở cửa","Khép kín","Nghiêm túc"],ans:0},
+  // HEALTH (24-35)
+  {topic:"Health",q:"Thói quen ăn uống lành mạnh bao gồm?",opts:["Eat more fruits, fish, vegetables","Eat more junk food","Eat more fat food","Skip breakfast every day"],ans:0},
+  {topic:"Health",q:"Tập thể dục đều đặn mang lại lợi ích gì?",opts:["Stay healthy, keep fit, better immune system","Increase cholesterol level","Get tired easily","Can not focus on work"],ans:0},
+  {topic:"Health",q:"'Have a regular health check-up' nghĩa là gì?",opts:["Khám sức khỏe định kỳ","Tập thể dục hàng ngày","Ăn nhiều rau xanh","Uống nhiều nước"],ans:0},
+  {topic:"Health",q:"Từ 'obesity' trong tiếng Việt nghĩa là?",opts:["Béo phì","Tiểu đường","Cao huyết áp","Bệnh tim mạch"],ans:0},
+  {topic:"Health",q:"Từ 'diabetes' trong tiếng Việt nghĩa là?",opts:["Tiểu đường","Béo phì","Rối loạn giấc ngủ","Bệnh tim mạch"],ans:0},
+  {topic:"Health",q:"'High blood pressure' nghĩa tiếng Việt là gì?",opts:["Cao huyết áp","Tiểu đường","Béo phì","Rối loạn giấc ngủ"],ans:0},
+  {topic:"Health",q:"'Sleep disturbance' dịch sang tiếng Việt là?",opts:["Rối loạn giấc ngủ","Cao huyết áp","Béo phì","Bệnh tim"],ans:0},
+  {topic:"Health",q:"Ăn quá nhiều đồ ăn không lành mạnh gây ra vấn đề gì?",opts:["Increase the risk of health problems","Stay healthy and keep fit","Have a better immune system","Make us strong and relaxed"],ans:0},
+  {topic:"Health",q:"Lợi ích của fast food / junk food là gì?",opts:["Be fast and convenient, have affordable meals","Stay healthy","Keep fit","Have a better immune system"],ans:0},
+  {topic:"Health",q:"Thói quen xấu nào liên quan đến sức khỏe?",opts:["Do not exercise regularly","Eat more fruits and vegetables","Drink more water everyday","Exercise everyday"],ans:0},
+  {topic:"Health",q:"'Heart disease' trong tiếng Việt là gì?",opts:["Bệnh về tim mạch","Béo phì","Tiểu đường","Rối loạn giấc ngủ"],ans:0},
+  {topic:"Health",q:"Hậu quả của thói quen xấu đối với công việc/học tập?",opts:["Can not focus on work or study","Perform better at school","Have more energy","Be more productive"],ans:0},
+  // ENVIRONMENT (36-44)
+  {topic:"Environment",q:"Thói quen tốt nào giúp bảo vệ môi trường?",opts:["Reuse and recycle products","Exploit natural resources","Increase greenhouse gas emissions","Pollute the environment"],ans:0},
+  {topic:"Environment",q:"'Consume less energy' nghĩa là gì?",opts:["Tiêu thụ ít năng lượng / tiết kiệm năng lượng","Tiêu thụ nhiều năng lượng","Sản xuất năng lượng","Lãng phí năng lượng"],ans:0},
+  {topic:"Environment",q:"Phân loại rác trong tiếng Anh là gì?",opts:["Sort trash","Throw trash everywhere","Burn trash","Bury trash"],ans:0},
+  {topic:"Environment",q:"Lợi ích của việc bảo vệ môi trường?",opts:["Conserve natural resources, reduce pollution","Increase greenhouse gas emissions","Exploit natural resources","Cause global warming"],ans:0},
+  {topic:"Environment",q:"'Tackle some causes of global warming' có nghĩa là?",opts:["Giải quyết nguyên nhân gây nóng lên toàn cầu","Gây ra nóng lên toàn cầu","Tăng khí thải nhà kính","Khai thác tài nguyên thiên nhiên"],ans:0},
+  {topic:"Environment",q:"Vấn đề môi trường nào được nhắc đến?",opts:["Cause global warming / climate change","Conserve natural resources","Reduce pollution","Use reusable products"],ans:0},
+  {topic:"Environment",q:"'Exploit natural resources' có nghĩa là?",opts:["Khai thác tài nguyên thiên nhiên","Bảo tồn tài nguyên thiên nhiên","Tiết kiệm năng lượng","Tái chế sản phẩm"],ans:0},
+  {topic:"Environment",q:"'Greenhouse gas emissions' nghĩa là gì?",opts:["Khí thải nhà kính","Khí tự nhiên","Không khí trong lành","Năng lượng tái tạo"],ans:0},
+  {topic:"Environment",q:"Dùng sản phẩm tái sử dụng trong tiếng Anh nói thế nào?",opts:["Use more reusable products","Use more disposable products","Throw away products","Buy new products only"],ans:0},
+  // HOBBIES (45-53)
+  {topic:"Hobbies",q:"Từ đồng nghĩa của 'hobbies' là gì?",opts:["Free time activities / leisure activities","Work duties / job tasks","School subjects / courses","Health problems / diseases"],ans:0},
+  {topic:"Hobbies",q:"Sở thích mang lại lợi ích gì?",opts:["Bring happiness, reduce stress, develop creativity","Increase stress","Make people lazier","Cause health problems"],ans:0},
+  {topic:"Hobbies",q:"Nhược điểm của chơi game bạo lực?",opts:["Increase aggressive feelings, thoughts and behaviors","Bring happiness to family","Develop cognitive skills","Broaden knowledge"],ans:0},
+  {topic:"Hobbies",q:"Giải pháp nào giúp hạn chế tác hại của game?",opts:["Set limits on the length of time for playing","Play more violent games","Do not go to school","Stay at home all day"],ans:0},
+  {topic:"Hobbies",q:"'Broaden the knowledge' nghĩa là gì?",opts:["Mở rộng kiến thức","Thu hẹp kiến thức","Quên kiến thức","Bỏ qua kiến thức"],ans:0},
+  {topic:"Hobbies",q:"'Develop the cognitive skills' nghĩa là?",opts:["Phát triển kỹ năng nhận thức","Giảm kỹ năng tư duy","Mất tập trung","Lười biếng hơn"],ans:0},
+  {topic:"Hobbies",q:"Chơi game quá nhiều ảnh hưởng đến học tập thế nào?",opts:["Not focus on duties – perform worse at school","Get better grades","Improve concentration","Become more diligent"],ans:0},
+  {topic:"Hobbies",q:"Các môn thể thao nào được nhắc đến?",opts:["Swimming, tennis, table tennis, football","Chess, poker, cards","Cooking, baking, gardening","Painting, drawing, sculpting"],ans:0},
+  {topic:"Hobbies",q:"'Reduce the stress of everyday hard work' nghĩa là?",opts:["Giảm căng thẳng từ công việc hàng ngày","Tăng căng thẳng","Thêm áp lực công việc","Làm việc nhiều hơn"],ans:0},
+  // JOB/STUDY (54-62)
+  {topic:"Job/Study",q:"Cách giới thiệu bản thân về công việc?",opts:["I work as an accountant for ABC company","I like playing games","I live in the countryside","I eat healthy food"],ans:0},
+  {topic:"Job/Study",q:"'I am in charge of...' nghĩa là gì?",opts:["Tôi phụ trách / chịu trách nhiệm về...","Tôi không quan tâm đến...","Tôi từ chối...","Tôi quên mất..."],ans:0},
+  {topic:"Job/Study",q:"Nhiệm vụ học tập bao gồm?",opts:["Do homework, make presentations, join clubs","Working with clients","Solving clients problems","Contacting partners"],ans:0},
+  {topic:"Job/Study",q:"Điều gì KHÔNG THÍCH về công việc?",opts:["Work overtime – less time for family and friends","Have opportunities for promotion","Co-workers are friendly","Have environment to develop skills"],ans:0},
+  {topic:"Job/Study",q:"'Have opportunities for promotion' nghĩa tiếng Việt?",opts:["Có cơ hội thăng tiến","Có cơ hội du lịch","Có cơ hội nghỉ ngơi","Có cơ hội chuyển việc"],ans:0},
+  {topic:"Job/Study",q:"Khi khối lượng công việc lớn, bạn cảm thấy thế nào?",opts:["Feel tired / overloaded","Feel relaxed and happy","Feel excited","Feel nothing"],ans:0},
+  {topic:"Job/Study",q:"Điều thích ở công việc/học tập?",opts:["Apply knowledge, friendly co-workers, promotion","The company is far from home","The workload is huge","Have to work overtime"],ans:0},
+  {topic:"Job/Study",q:"'Collaborate with other departments' nghĩa là?",opts:["Hợp tác với các phòng ban khác","Cạnh tranh với đồng nghiệp","Làm việc một mình","Nghỉ việc"],ans:0},
+  {topic:"Job/Study",q:"Sinh viên thường làm gì vào cuối tuần?",opts:["Do part-time jobs at the weekends","Work overtime at the office","Attend business meetings","Contact partners"],ans:0},
+  // CRIME (63-70)
+  {topic:"Crime",q:"Nguyên nhân nào dẫn đến tội phạm ở trẻ em?",opts:["Not be nurtured with love, care and support","Have too many hobbies","Study too hard","Exercise too much"],ans:0},
+  {topic:"Crime",q:"Tại sao trẻ em thiếu sự quan tâm của cha mẹ?",opts:["Parents are too busy with work","Parents are too strict","Parents give too much love","Parents are always at home"],ans:0},
+  {topic:"Crime",q:"Nghèo đói dẫn đến tội phạm vì sao?",opts:["Not have enough means to secure a living","Have too much money","Have many career opportunities","Life is too comfortable"],ans:0},
+  {topic:"Crime",q:"Giải pháp cho cha mẹ để ngăn ngừa tội phạm?",opts:["Spend more time with children, control activities","Let children do whatever they want","Give children more money","Do not care about children"],ans:0},
+  {topic:"Crime",q:"'Rehabilitation center' là gì?",opts:["Trung tâm cải tạo / phục hồi","Trung tâm thương mại","Trung tâm giải trí","Trung tâm thể thao"],ans:0},
+  {topic:"Crime",q:"Tại trung tâm cải tạo, phạm nhân được gì?",opts:["Learn to behave well, get vocational training","Play games all day","Watch movies","Do nothing"],ans:0},
+  {topic:"Crime",q:"'Get access to many violent games' gây hậu quả gì?",opts:["Copy bad things on the internet","Develop creativity","Broaden knowledge","Improve social skills"],ans:0},
+  {topic:"Crime",q:"'Vocational training' nghĩa là gì?",opts:["Đào tạo nghề","Đào tạo đại học","Đào tạo quân sự","Đào tạo thể thao"],ans:0},
+  // HOUSE/FLAT (71-77)
+  {topic:"House/Flat",q:"Các phòng trong nhà bao gồm?",opts:["Living room, bedroom, bathroom, garden, garage","Classroom, library, laboratory","Office, meeting room, reception","Factory, warehouse, workshop"],ans:0},
+  {topic:"House/Flat",q:"Từ 'stuffy' (ngột ngạt) mô tả căn nhà thế nào?",opts:["Không khí ngột ngạt, thiếu thông thoáng","Rộng rãi, thoáng mát","Đẹp, xinh xắn","Yên tĩnh, bình yên"],ans:0},
+  {topic:"House/Flat",q:"'Cramped' trong tiếng Việt nghĩa là?",opts:["Chật chội","Rộng rãi","Thoáng mát","Sang trọng"],ans:0},
+  {topic:"House/Flat",q:"'Drafty' nghĩa tiếng Việt là gì?",opts:["Nhiều gió lùa","Ngột ngạt","Chật chội","Rộng rãi"],ans:0},
+  {topic:"House/Flat",q:"Nội thất trong nhà bao gồm?",opts:["Table, TV, sofa, bookshelf, bed, wardrobe","Trees, flowers, grass","Cars, bikes, buses","Books, pens, papers"],ans:0},
+  {topic:"House/Flat",q:"Hoạt động trong vườn là gì?",opts:["Grow plants and flowers","Watch TV","Read books","Welcome guests"],ans:0},
+  {topic:"House/Flat",q:"Tính từ tích cực mô tả ngôi nhà?",opts:["Large, spacious, quiet, peaceful, beautiful","Stuffy, drafty, cramped","Noisy, dirty, ugly","Small, dark, cold"],ans:0},
+  // TECHNOLOGY (78-84)
+  {topic:"Technology",q:"Ưu điểm của công nghệ?",opts:["Perform faster and more efficiently","Make people lazier","Increase unemployment rate","Have less social interactions"],ans:0},
+  {topic:"Technology",q:"'Make people lazier' là ưu điểm hay nhược điểm?",opts:["Nhược điểm (Disadvantage)","Ưu điểm (Advantage)","Giải pháp (Solution)","Lợi ích (Benefit)"],ans:0},
+  {topic:"Technology",q:"Phụ thuộc quá nhiều vào máy móc dẫn đến?",opts:["Refuse to do tasks by hand","Work faster and more efficiently","Be more creative","Have better social skills"],ans:0},
+  {topic:"Technology",q:"Giải pháp cho vấn đề công nghệ?",opts:["Join social activities, take training courses","Use more technology","Stay at home all day","Avoid all machines"],ans:0},
+  {topic:"Technology",q:"'Increase the unemployment rate' nghĩa là?",opts:["Tăng tỷ lệ thất nghiệp","Giảm tỷ lệ thất nghiệp","Tạo thêm việc làm","Cải thiện thu nhập"],ans:0},
+  {topic:"Technology",q:"Hoạt động xã hội nào giúp giảm tác hại công nghệ?",opts:["Team building, picnic, party","Play more video games","Use social media more","Watch more TV"],ans:0},
+  {topic:"Technology",q:"'Raise the sense of responsibility' nghĩa là?",opts:["Nâng cao ý thức trách nhiệm","Giảm trách nhiệm","Từ chối trách nhiệm","Không quan tâm"],ans:0},
+  // LANGUAGES (85-91)
+  {topic:"Languages",q:"Học ngoại ngữ giúp gì khi đi du lịch?",opts:["Feel more confident – talk easily with foreigners","Feel more tired","Spend more money","Get lost easily"],ans:0},
+  {topic:"Languages",q:"Tại sao cần học tiếng Anh để tiếp cận kiến thức?",opts:["Many books are written in English","All books are in Vietnamese","No books exist in English","English is not important"],ans:0},
+  {topic:"Languages",q:"Học ngoại ngữ giúp hiểu biết thêm về?",opts:["Culture, people, society, customs and traditions","Mathematics and physics","Computer programming","Cooking recipes"],ans:0},
+  {topic:"Languages",q:"'Work and do business without an interpreter' nghĩa là?",opts:["Làm việc kinh doanh không cần phiên dịch","Làm việc cần nhiều phiên dịch","Không thể làm việc","Chỉ dùng ngôn ngữ mẹ đẻ"],ans:0},
+  {topic:"Languages",q:"'Open a new door to the world' là cách nói ẩn dụ nghĩa là?",opts:["Mở ra cơ hội mới cho thế giới","Mở cửa ra ngoài","Đóng cửa lại","Khóa cửa"],ans:0},
+  {topic:"Languages",q:"Học ngoại ngữ giúp kết bạn thế nào?",opts:["Become friends with many people around the world","Only make friends in your country","Lose all friends","Have fewer friends"],ans:0},
+  {topic:"Languages",q:"Lợi ích nào KHÔNG được nhắc đến khi học ngoại ngữ?",opts:["Kiếm được nhiều tiền hơn (earn more money)","Tự tin hơn khi du lịch","Kết bạn quốc tế","Hiểu văn hóa nước khác"],ans:0},
+  // MACHINE (92-96)
+  {topic:"Machine",q:"Máy tính giúp học tập thế nào?",opts:["Read newspapers online, download info, learn online","Play games all day","Watch movies only","Chat with friends only"],ans:0},
+  {topic:"Machine",q:"Máy tính tiện lợi cho công việc vì?",opts:["Work faster – typing, printing, storing data","Make people lazy","Cause health problems","Waste time"],ans:0},
+  {topic:"Machine",q:"Máy tính giải trí bằng cách nào?",opts:["Play games, listen to music, watch movies, join forums","Only for work","Only for studying","Only for reading news"],ans:0},
+  {topic:"Machine",q:"'Storing data' nghĩa là gì?",opts:["Lưu trữ dữ liệu","Xóa dữ liệu","In tài liệu","Gõ văn bản"],ans:0},
+  {topic:"Machine",q:"Mạng xã hội giúp gì?",opts:["Join forums, groups to share ideas and information","Avoid all social contacts","Delete all information","Never share anything"],ans:0},
+  // DESCRIBE A PERSON (97-103)
+  {topic:"Person",q:"Từ nào mô tả ngoại hình?",opts:["Tall, short, medium-height, middle-aged","Sincere, generous, helpful","Talkative, selfish, awful","Friendly, sociable, polite"],ans:0},
+  {topic:"Person",q:"'Generous' trong tiếng Việt nghĩa là?",opts:["Hào phóng","Ích kỷ","Thật thà","Nói nhiều"],ans:0},
+  {topic:"Person",q:"'Selfish' nghĩa tiếng Việt là gì?",opts:["Ích kỷ","Hào phóng","Tốt bụng","Thân thiện"],ans:0},
+  {topic:"Person",q:"'Sincere' đồng nghĩa với từ nào?",opts:["Honest (thật thà)","Selfish (ích kỷ)","Talkative (nói nhiều)","Awful (tệ hại)"],ans:0},
+  {topic:"Person",q:"Hoạt động chung với bạn bè?",opts:["Meet at coffee shop, go shopping, talk about life","Fight with each other","Ignore each other","Never meet"],ans:0},
+  {topic:"Person",q:"Cách nói về mối quan hệ lâu năm?",opts:["We have known each other for 10 years","We met yesterday","We do not know each other","We are strangers"],ans:0},
+  {topic:"Person",q:"'Have a sunny smile' mô tả điều gì?",opts:["Có nụ cười rạng rỡ","Có mái tóc dài","Có thân hình cao","Có tính cách xấu"],ans:0},
+  // HOLIDAY (104-110)
+  {topic:"Holiday",q:"'The scenery is magnificent' nghĩa là?",opts:["Phong cảnh tuyệt đẹp / hùng vĩ","Phong cảnh xấu xí","Phong cảnh bình thường","Không có phong cảnh"],ans:0},
+  {topic:"Holiday",q:"'Breathtaking views' nghĩa là?",opts:["Cảnh đẹp ngoạn mục, nghẹt thở","Cảnh buồn tẻ","Cảnh bình thường","Cảnh xấu xí"],ans:0},
+  {topic:"Holiday",q:"Ẩm thực địa phương được mô tả thế nào?",opts:["Fresh and delicious but not expensive","Expensive and terrible","Boring and tasteless","Frozen and unhealthy"],ans:0},
+  {topic:"Holiday",q:"Hải sản nào được nhắc đến?",opts:["Crab, lobsters, seashells","Chicken, pork, beef","Rice, noodles, bread","Fruits, vegetables, nuts"],ans:0},
+  {topic:"Holiday",q:"Con người ở nơi du lịch có đặc điểm gì?",opts:["Friendly, sociable, polite","Cold, unfriendly, rude","Dangerous, violent","Dishonest, selfish"],ans:0},
+  {topic:"Holiday",q:"Hoạt động nào ở biển?",opts:["Swim, sunbathing, play football, build sandcastles","Go skiing, snowboarding","Visit museums, galleries","Go hiking in the mountains"],ans:0},
+  {topic:"Holiday",q:"'Do sunbathing on the soft sand beach' nghĩa là?",opts:["Tắm nắng trên bãi cát mịn","Bơi trong hồ bơi","Leo núi","Đi bộ trong rừng"],ans:0}
+];
 
-  // Shuffle and pick 15
-  for (let i = allItems.length - 1; i > 0; i--) {
+let quizCount = 20;
+let quizStarted = false;
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [allItems[i], allItems[j]] = [allItems[j], allItems[i]];
+    [arr[i], arr[j]] = [arr[j], arr[i]];
   }
+  return arr;
+}
 
-  const selected = allItems.slice(0, 15);
-  selected.forEach(item => {
-    // Generate question: "Which topic/branch does this belong to?"
-    // Or: match the detail to the main point
-    const correctAnswer = item.text;
-    const wrongAnswers = allItems
-      .filter(a => a.text !== item.text)
-      .sort(() => Math.random() - 0.5)
-      .slice(0, 3)
-      .map(a => a.text);
-
-    const options = [...wrongAnswers, correctAnswer].sort(() => Math.random() - 0.5);
-
-    quizQuestions.push({
-      question: `Ý nào sau đây có chi tiết: "${item.subs[0]}"?`,
-      topic: item.topic,
-      options,
-      correct: correctAnswer
-    });
+function buildQuiz() {
+  const shuffled = shuffle([...quizBank]);
+  quizQuestions = shuffled.slice(0, quizCount).map(q => {
+    const correctText = q.opts[q.ans];
+    const shuffledOpts = shuffle([...q.opts]);
+    return { topic: q.topic, question: q.q, options: shuffledOpts, correct: correctText };
   });
-
   quizIdx = 0;
   quizScore = { correct: 0, wrong: 0 };
+  quizStarted = true;
 }
 
 function renderQuiz(area) {
-  if (!quizQuestions.length) buildQuiz();
+  if (!quizStarted) {
+    const topicCounts = {};
+    quizBank.forEach(q => { topicCounts[q.topic] = (topicCounts[q.topic]||0) + 1; });
+    area.innerHTML = `
+      <div class="quiz-container" style="text-align:center; padding-top:20px;">
+        <div style="font-size:3rem; margin-bottom:12px;">🧠</div>
+        <h2 style="font-family:'Playfair Display',serif; font-size:1.6rem; margin-bottom:8px;">Trắc nghiệm VSTEP</h2>
+        <p style="color:var(--text-dim); margin-bottom:28px; font-size:0.9rem;">Ngân hàng <strong style="color:var(--accent)">${quizBank.length} câu hỏi</strong> — 14 chủ đề</p>
+        <div style="margin-bottom:28px;">
+          <p style="font-weight:600; margin-bottom:12px;">Chọn số câu hỏi:</p>
+          <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
+            ${[10,20,50,quizBank.length].map(n => `
+              <button class="fc-btn ${quizCount===n?'primary':''}" onclick="quizCount=${n}; renderQuiz(document.getElementById('contentArea'))" style="min-width:70px;">
+                ${n===quizBank.length?'Tất cả ('+n+')':n+' câu'}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+        <div style="background:var(--surface2); border-radius:16px; padding:20px; margin-bottom:28px; text-align:left; max-width:420px; margin-left:auto; margin-right:auto;">
+          <p style="font-weight:600; margin-bottom:10px; font-size:0.85rem;">📊 Phân bố chủ đề:</p>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px 16px; font-size:0.8rem; color:var(--text-dim);">
+            ${Object.entries(topicCounts).map(([t,c]) => `<div>• ${t}: <strong style="color:var(--text)">${c}</strong></div>`).join('')}
+          </div>
+        </div>
+        <button class="quiz-next" style="font-size:1rem; padding:14px 40px;" onclick="buildQuiz(); renderQuiz(document.getElementById('contentArea'))">Bắt đầu làm bài →</button>
+      </div>
+    `;
+    return;
+  }
 
   if (quizIdx >= quizQuestions.length) {
+    const pct = Math.round(quizScore.correct / quizQuestions.length * 100);
+    let emoji = '🎉', msg = 'Xuất sắc!';
+    if (pct < 50) { emoji = '😅'; msg = 'Cần ôn thêm!'; }
+    else if (pct < 70) { emoji = '👍'; msg = 'Khá tốt!'; }
+    else if (pct < 90) { emoji = '🌟'; msg = 'Giỏi lắm!'; }
     area.innerHTML = `
       <div class="quiz-container" style="text-align:center; padding-top:40px;">
-        <div style="font-size:3rem; margin-bottom:16px;">🎉</div>
-        <h2 style="font-family:'Playfair Display',serif; font-size:1.8rem; margin-bottom:24px;">Hoàn thành!</h2>
+        <div style="font-size:3rem; margin-bottom:12px;">${emoji}</div>
+        <h2 style="font-family:'Playfair Display',serif; font-size:1.8rem; margin-bottom:24px;">${msg}</h2>
         <div class="quiz-score">
           <div class="quiz-score-item"><div class="num" style="color:var(--green)">${quizScore.correct}</div><div class="label">Đúng</div></div>
           <div class="quiz-score-item"><div class="num" style="color:var(--red)">${quizScore.wrong}</div><div class="label">Sai</div></div>
-          <div class="quiz-score-item"><div class="num" style="color:var(--accent)">${Math.round(quizScore.correct/quizQuestions.length*100)}%</div><div class="label">Tỷ lệ</div></div>
+          <div class="quiz-score-item"><div class="num" style="color:var(--accent)">${pct}%</div><div class="label">Tỷ lệ</div></div>
         </div>
-        <button class="quiz-next" onclick="buildQuiz(); renderQuiz(document.getElementById('contentArea'))">Làm lại 🔄</button>
+        <div style="display:flex; gap:12px; justify-content:center; margin-top:20px; flex-wrap:wrap;">
+          <button class="quiz-next" onclick="buildQuiz(); renderQuiz(document.getElementById('contentArea'))">Làm lại 🔄</button>
+          <button class="fc-btn" onclick="quizStarted=false; renderQuiz(document.getElementById('contentArea'))">Đổi cài đặt ⚙️</button>
+        </div>
       </div>
     `;
     return;
   }
 
   const q = quizQuestions[quizIdx];
+  const progressPct = Math.round((quizIdx / quizQuestions.length) * 100);
   area.innerHTML = `
     <div class="quiz-container">
+      <div style="background:var(--surface2); border-radius:100px; height:6px; margin-bottom:20px; overflow:hidden;">
+        <div style="background:var(--accent); height:100%; width:${progressPct}%; border-radius:100px; transition:width 0.4s;"></div>
+      </div>
       <div class="quiz-header">
         <div class="quiz-score">
           <div class="quiz-score-item"><div class="num" style="color:var(--green)">${quizScore.correct}</div><div class="label">Đúng</div></div>
@@ -1394,7 +1541,7 @@ function renderQuiz(area) {
         <div class="quiz-q-text">${q.question}</div>
         <div class="quiz-options" id="quizOptions">
           ${q.options.map((opt, i) => `
-            <button class="quiz-option" onclick="answerQuiz(${i}, '${escapeStr(q.correct)}')">${opt}</button>
+            <button class="quiz-option" data-idx="${i}" onclick="answerQuiz(this)">${opt}</button>
           `).join('')}
         </div>
       </div>
@@ -1402,31 +1549,20 @@ function renderQuiz(area) {
   `;
 }
 
-function escapeStr(s) {
-  return s.replace(/'/g, "\\'").replace(/"/g, '\\"');
-}
-
-function answerQuiz(selectedIdx, correct) {
+function answerQuiz(btn) {
+  const q = quizQuestions[quizIdx];
+  const selected = btn.textContent.trim();
+  const isCorrect = selected === q.correct;
   const buttons = document.querySelectorAll('.quiz-option');
-  const selectedText = buttons[selectedIdx].textContent.trim();
-  const isCorrect = selectedText === correct.replace(/\\'/g, "'").replace(/\\"/g, '"');
-
-  buttons.forEach((btn, i) => {
-    btn.classList.add('disabled');
-    btn.onclick = null;
-    if (btn.textContent.trim() === correct.replace(/\\'/g, "'").replace(/\\"/g, '"')) {
-      btn.classList.add('correct');
-    }
-    if (i === selectedIdx && !isCorrect) {
-      btn.classList.add('wrong');
-    }
+  buttons.forEach(b => {
+    b.classList.add('disabled');
+    b.onclick = null;
+    if (b.textContent.trim() === q.correct) b.classList.add('correct');
   });
-
-  if (isCorrect) quizScore.correct++;
-  else quizScore.wrong++;
-
+  if (!isCorrect) btn.classList.add('wrong');
+  if (isCorrect) quizScore.correct++; else quizScore.wrong++;
   const card = document.querySelector('.quiz-question-card');
-  card.insertAdjacentHTML('afterend', `<button class="quiz-next" onclick="quizIdx++; renderQuiz(document.getElementById('contentArea'))">Câu tiếp theo →</button>`);
+  card.insertAdjacentHTML('afterend', '<button class="quiz-next" onclick="quizIdx++; renderQuiz(document.getElementById(\'contentArea\'))">Câu tiếp theo →</button>');
 }
 
 // ===== INIT =====
